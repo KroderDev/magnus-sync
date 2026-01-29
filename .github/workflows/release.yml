@@ -55,6 +55,10 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           github-generate-changelog: true
 
-          # Modrinth Credentials
+          # Modrinth Release
           modrinth-id: 4AvJZ4tk
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+
+          # CurseForge Release
+          curseforge-id: 1448049
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}

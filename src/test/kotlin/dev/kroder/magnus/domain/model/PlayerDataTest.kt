@@ -16,6 +16,7 @@ class PlayerDataTest {
 
     @Test
     fun `should serialize and deserialize PlayerData correctly`() {
+        val fixedTimestamp = 1234567890L
         val original = PlayerData(
             uuid = UUID.randomUUID(),
             username = "TestUser",
@@ -30,7 +31,8 @@ class PlayerDataTest {
             experienceProgress = 0.5f,
             inventoryNbt = "{}",
             enderChestNbt = "{}",
-            activeEffectsNbt = "[]"
+            activeEffectsNbt = "[]",
+            lastUpdated = fixedTimestamp
         )
 
         val serialized = json.encodeToString(original)
