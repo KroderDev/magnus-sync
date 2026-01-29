@@ -56,5 +56,5 @@ jobs:
           github-generate-changelog: true
 
           # Modrinth Credentials
-          modrinth-id: magnus-sync
+          modrinth-id: 4AvJZ4tk
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}

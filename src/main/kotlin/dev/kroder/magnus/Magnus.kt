@@ -24,11 +24,11 @@ import redis.clients.jedis.JedisPoolConfig
  * - This class should stay lean, only handling dependency injection and lifecycle.
  */
 object Magnus : ModInitializer {
-    private val logger = LoggerFactory.getLogger("magnus-sync")
+    private val logger = LoggerFactory.getLogger("magnus")
     private val config = dev.kroder.magnus.infrastructure.config.ConfigLoader.load()
 
     override fun onInitialize() {
-        logger.info("Initializing Magnus Sync")
+        logger.info("Initializing Magnus")
 
         // 1. Initialize Postgres (Infrastructure)
         logger.info("Persistence: Connecting to PostgreSQL...")
@@ -94,16 +94,16 @@ object Magnus : ModInitializer {
 
         // 6. Graceful Shutdown Hook
         net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STOPPING.register {
-            logger.info("Magnus Sync: Shutting down services...")
+            logger.info("Magnus: Shutting down services...")
             try {
                 recoveryService.shutdown()
                 jedisPool.close()
-                logger.info("Magnus Sync: Services stopped cleanly.")
+                logger.info("Magnus: Services stopped cleanly.")
             } catch (e: Exception) {
-                logger.error("Magnus Sync: Error during shutdown!", e)
+                logger.error("Magnus: Error during shutdown!", e)
             }
         }
 
-        logger.info("Magnus Sync initialized successfully! [Ready]")
+        logger.info("Magnus initialized successfully! [Ready]")
     }
 }

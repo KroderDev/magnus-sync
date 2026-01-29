@@ -8,8 +8,8 @@
 		"kroder"
 	],
 	"contact": {
-		"homepage": "https://github.com/kroderdev/magnus-sync",
-		"sources": "https://github.com/kroderdev/magnus-sync"
+		"homepage": "https://github.com/kroderdev/magnus",
+		"sources": "https://github.com/kroderdev/magnus"
 	},
 	"license": "CC0-1.0",
 	"icon": "assets/magnus/icon.png",
