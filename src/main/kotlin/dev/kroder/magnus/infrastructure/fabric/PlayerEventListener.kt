@@ -32,11 +32,19 @@ class PlayerEventListener(
 
     private fun onPlayerJoin(handler: ServerPlayNetworkHandler) {
         val player = handler.player
-        val data = syncService.loadPlayerData(player.uuid)
-        
-        if (data != null) {
-            // Apply the loaded data to the live player instance
-            FabricPlayerAdapter.applyToPlayer(player, data)
+        try {
+            val data = syncService.loadPlayerData(player.uuid)
+            
+            if (data != null) {
+                // Apply the loaded data to the live player instance
+                FabricPlayerAdapter.applyToPlayer(player, data)
+            }
+        } catch (e: dev.kroder.magnus.domain.exception.DataUnavailableException) {
+            // CRITICAL: DB is down and no backup. Kick to prevent data loss.
+            handler.disconnect(net.minecraft.text.Text.literal("§cSync Error: Database Unavailable.\n§7Please try again later. Your data is safe."))
+        } catch (e: Exception) {
+            e.printStackTrace()
+            // Optional: Kick on generic error too?
         }
     }
 

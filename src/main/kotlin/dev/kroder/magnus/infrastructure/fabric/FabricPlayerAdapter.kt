@@ -21,15 +21,14 @@ object FabricPlayerAdapter {
      * Creates a [PlayerData] snapshot from a live Minecraft player.
      */
     fun toDomain(player: ServerPlayerEntity): PlayerData {
-        val inventoryNbt = NbtCompound()
-        player.inventory.writeNbt(inventoryNbt.getList("Items", 10)) // 10 is the tag ID for Compound
-        
-        // Simpler way: capture the whole inventory + ender chest
+        // PlayerInventory has writeNbt
         val invCompound = NbtCompound()
         player.inventory.writeNbt(invCompound.getList("Inventory", 10))
 
+        // EnderChestInventory does NOT have writeNbt, need to use toNbtList
         val enderCompound = NbtCompound()
-        player.enderChestInventory.writeNbt(enderCompound.getList("EnderItems", 10))
+        val enderList = player.enderChestInventory.toNbtList(player.registryManager)
+        enderCompound.put("EnderItems", enderList)
 
         return PlayerData(
             uuid = player.uuid,
@@ -58,7 +57,8 @@ object FabricPlayerAdapter {
         player.inventory.readNbt(invCompound.getList("Inventory", 10))
 
         val enderCompound = deserializeNbt(data.enderChestNbt)
-        player.enderChestInventory.readNbt(enderCompound.getList("EnderItems", 10))
+        // EnderChestInventory does NOT have readNbt, need to use readNbtList
+        player.enderChestInventory.readNbtList(enderCompound.getList("EnderItems", 10), player.registryManager)
         
         // Mark as dirty to ensure sync with client
         player.inventory.markDirty()
@@ -74,6 +74,7 @@ object FabricPlayerAdapter {
     private fun deserializeNbt(base64: String): NbtCompound {
         if (base64.isEmpty()) return NbtCompound()
         val bytes = Base64.getDecoder().decode(base64)
-        return NbtIo.readCompressed(ByteArrayInputStream(bytes))
+        // NbtIo.readCompressed requires NbtSizeTracker in newer versions
+        return NbtIo.readCompressed(ByteArrayInputStream(bytes), net.minecraft.nbt.NbtSizeTracker.ofUnlimitedBytes())
     }
 }

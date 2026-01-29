@@ -36,7 +36,7 @@ class PostgresPlayerRepository(private val database: Database) : PlayerRepositor
 
     override fun findByUuid(uuid: UUID): PlayerData? {
         return transaction(database) {
-            PlayerDataTable.select(PlayerDataTable.uuid eq uuid)
+            PlayerDataTable.selectAll().where { PlayerDataTable.uuid eq uuid }
                 .map {
                     PlayerData(
                         uuid = it[PlayerDataTable.uuid],

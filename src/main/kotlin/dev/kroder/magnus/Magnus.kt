@@ -4,7 +4,6 @@ import dev.kroder.magnus.application.SyncService
 import dev.kroder.magnus.infrastructure.config.MagnusConfig
 import dev.kroder.magnus.infrastructure.fabric.PlayerEventListener
 import dev.kroder.magnus.infrastructure.persistence.CachedPlayerRepository
-import dev.kroder.magnus.infrastructure.persistence.postgres.PlayerDataSchema
 import dev.kroder.magnus.infrastructure.persistence.postgres.PlayerDataTable
 import dev.kroder.magnus.infrastructure.persistence.postgres.PostgresPlayerRepository
 import dev.kroder.magnus.infrastructure.persistence.redis.RedisPlayerRepository
@@ -39,8 +38,12 @@ object Magnus : ModInitializer {
             password = config.postgresPass
         )
 
-        transaction(database) {
-            SchemaUtils.create(PlayerDataTable)
+        try {
+            transaction(database) {
+                SchemaUtils.create(PlayerDataTable)
+            }
+        } catch (e: Exception) {
+            logger.error("Failed to connect to PostgreSQL on boot. Server will start in RESILIENCE MODE (Offline).", e)
         }
 
         // 2. Initialize Redis (Infrastructure)
@@ -50,9 +53,17 @@ object Magnus : ModInitializer {
         val postgresRepo = PostgresPlayerRepository(database)
         val redisRepo = RedisPlayerRepository(jedisPool)
         val compositeRepo = CachedPlayerRepository(cache = redisRepo, persistentStore = postgresRepo)
+        
+        // Resilience Layer
+        val backupsDir = net.fabricmc.loader.api.FabricLoader.getInstance().configDir.resolve("magnus/backups").toFile()
+        val localBackupRepo = dev.kroder.magnus.infrastructure.persistence.local.LocalBackupRepository(backupsDir)
+        val resilientRepo = dev.kroder.magnus.infrastructure.persistence.ResilientPlayerRepository(compositeRepo, localBackupRepo)
 
-        // 4. Create Application Service (Application)
-        val syncService = SyncService(compositeRepo)
+        // 4. Create Application Services
+        val syncService = SyncService(resilientRepo) // Use the resilient one!
+        
+        val recoveryService = dev.kroder.magnus.application.BackupRecoveryService(localBackupRepo, compositeRepo)
+        recoveryService.start()
 
         // 5. Initialize Listeners (Infrastructure / Driving Adapter)
         val listener = PlayerEventListener(syncService)
