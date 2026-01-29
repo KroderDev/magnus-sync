@@ -5,7 +5,8 @@
 ![Fabric](https://img.shields.io/badge/Loader-Fabric-blue?style=flat-square&logo=fabric)
 ![Kotlin](https://img.shields.io/badge/Language-Kotlin-purple?style=flat-square&logo=kotlin)
 ![License](https://img.shields.io/github/license/KroderDev/magnus-sync?style=flat-square&color=blue)
-![Version](https://img.shields.io/badge/Version-1.0.0-green?style=flat-square)
+![GitHub Tag](https://img.shields.io/github/v/tag/KroderDev/magnus-sync?style=flat-square&label=GitHub&color=green)
+![Modrinth Version](https://img.shields.io/modrinth/v/magnus-sync?style=flat-square&logo=modrinth&color=00AF5C&label=Modrinth)
 
 
 A high-performance, fault-tolerant inventory synchronization mod for Minecraft Fabric servers.
