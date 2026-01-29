@@ -17,5 +17,8 @@ data class MagnusConfig(
     val postgresPass: String = "password",
     val redisHost: String = "localhost",
     val redisPort: Int = 6379,
-    val redisPass: String? = null
+    val redisPass: String? = null,
+    
+    // Module Feature Flags
+    val enableGlobalPlayerList: Boolean = false
 )

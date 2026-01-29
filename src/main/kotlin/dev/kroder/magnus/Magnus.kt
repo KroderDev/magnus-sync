@@ -88,15 +88,27 @@ object Magnus : ModInitializer {
         val recoveryService = dev.kroder.magnus.application.BackupRecoveryService(localBackupRepo, compositeRepo)
         recoveryService.start()
 
-        // 5. Initialize Listeners (Infrastructure / Driving Adapter)
+        // 5. Initialize Modular System
+        val moduleManager = dev.kroder.magnus.infrastructure.module.ModuleManager()
+        
+        // TODO: Register modules when implemented
+        // Example: if (config.enableGlobalChat) moduleManager.registerModule(GlobalChatModule(...))
+
+        // Enable modules based on configuration
+        if (config.enableGlobalChat) moduleManager.enableModule("global-chat")
+        if (config.enableRemoteCommands) moduleManager.enableModule("remote-commands")
+        if (config.enableGlobalPlayerList) moduleManager.enableModule("global-player-list")
+
+        // 6. Initialize Listeners (Infrastructure / Driving Adapter)
         val listener = PlayerEventListener(syncService)
         listener.register()
 
-        // 6. Graceful Shutdown Hook
+        // 7. Graceful Shutdown Hook
         net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STOPPING.register {
             logger.info("Magnus: Shutting down services...")
             try {
                 recoveryService.shutdown()
+                moduleManager.shutdown()
                 jedisPool.close()
                 logger.info("Magnus: Services stopped cleanly.")
             } catch (e: Exception) {
