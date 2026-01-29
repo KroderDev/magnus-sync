@@ -2,6 +2,7 @@ plugins {
 	id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
 	id 'maven-publish'
 	id "org.jetbrains.kotlin.jvm" version "2.3.0"
+	id "org.jetbrains.kotlin.plugin.serialization" version "2.1.0"
 }
 
 version = project.mod_version
@@ -46,6 +47,28 @@ dependencies {
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 	modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
+
+    // Domain & Infrastructure dependencies
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:${project.kotlin_serialization_version}"
+    include "org.jetbrains.kotlinx:kotlinx-serialization-json:${project.kotlin_serialization_version}"
+
+    implementation "org.jetbrains.exposed:exposed-core:${project.exposed_version}"
+    implementation "org.jetbrains.exposed:exposed-dao:${project.exposed_version}"
+    implementation "org.jetbrains.exposed:exposed-jdbc:${project.exposed_version}"
+    implementation "org.jetbrains.exposed:exposed-kotlin-datetime:${project.exposed_version}"
+    include "org.jetbrains.exposed:exposed-core:${project.exposed_version}"
+    include "org.jetbrains.exposed:exposed-dao:${project.exposed_version}"
+    include "org.jetbrains.exposed:exposed-jdbc:${project.exposed_version}"
+    include "org.jetbrains.exposed:exposed-kotlin-datetime:${project.exposed_version}"
+
+    implementation "com.zaxxer:HikariCP:${project.hikaricp_version}"
+    include "com.zaxxer:HikariCP:${project.hikaricp_version}"
+
+    implementation "redis.clients:jedis:${project.jedis_version}"
+    include "redis.clients:jedis:${project.jedis_version}"
+
+    implementation "org.postgresql:postgresql:${project.postgres_version}"
+    include "org.postgresql:postgresql:${project.postgres_version}"
 }
 
 processResources {
