@@ -38,3 +38,11 @@ hs_err_*.log
 replay_*.log
 *.hprof
 *.jfr
+
+# Kotlin
+
+.kotlin/
+
+# Logs
+
+logs/

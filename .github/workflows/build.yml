@@ -24,6 +24,8 @@ jobs:
           distribution: 'microsoft'
       - name: make gradle wrapper executable
         run: chmod +x ./gradlew
+      - name: test
+        run: ./gradlew test
       - name: build
         run: ./gradlew build
       - name: capture build artifacts

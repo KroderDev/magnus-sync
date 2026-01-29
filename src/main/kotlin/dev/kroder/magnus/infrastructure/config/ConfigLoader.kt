@@ -7,14 +7,15 @@ import java.io.File
 import java.nio.file.Files
 
 object ConfigLoader {
-    private val configDir = FabricLoader.getInstance().configDir
-    private val configFile = configDir.resolve("magnus.json").toFile()
     private val json = Json { prettyPrint = true; ignoreUnknownKeys = true }
 
-    fun load(): MagnusConfig {
+    fun load(configDir: java.nio.file.Path? = null): MagnusConfig {
+        val dir = configDir ?: FabricLoader.getInstance().configDir
+        val configFile = dir.resolve("magnus.json").toFile()
+
         if (!configFile.exists()) {
             val defaultConfig = MagnusConfig()
-            save(defaultConfig)
+            save(defaultConfig, configFile)
             return defaultConfig
         }
 
@@ -29,7 +30,7 @@ object ConfigLoader {
         }
     }
 
-    private fun save(config: MagnusConfig) {
+    private fun save(config: MagnusConfig, configFile: File) {
         try {
             val content = json.encodeToString(MagnusConfig.serializer(), config)
             Files.writeString(configFile.toPath(), content)
