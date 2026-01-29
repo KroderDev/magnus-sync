@@ -7,6 +7,7 @@
 ![License](https://img.shields.io/github/license/KroderDev/magnus?style=flat-square&color=blue)
 ![GitHub Tag](https://img.shields.io/github/v/tag/KroderDev/magnus?style=flat-square&label=GitHub&color=green)
 ![Modrinth Version](https://img.shields.io/modrinth/v/magnus?style=flat-square&logo=modrinth&color=00AF5C&label=Modrinth)
+![CurseForge Version](https://img.shields.io/curseforge/v/1448049?style=flat-square&logo=curseforge&color=F16436&label=CurseForge)
 
 
 A high-performance, fault-tolerant inventory synchronization mod for Minecraft Fabric servers.
