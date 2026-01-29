@@ -21,37 +21,24 @@ A high-performance, fault-tolerant inventory synchronization mod for Minecraft F
     *   **Local Fallback**: Saves data to disk if the database goes down.
     *   **Auto-Recovery**: "The Janitor" service automatically restores data when the database comes back online.
 
-## Installation
+## Configuration
 
-### Prerequisites
-*   **Java 21** installed.
-*   **PostgreSQL** database.
-*   **Redis** server.
+Magnus requires a **PostgreSQL** database and a **Redis** instance to function.
 
-### Setup
+1.  **Generate Config**: Start your server once to generate the default configuration file at `config/magnus.json`.
+2.  **Edit Credentials**: Stop the server and open `config/magnus.json`. Fill in your database and cache details:
+    ```json
+    {
+        "postgresUrl": "jdbc:postgresql://your-db-host:5432/magnus",
+        "postgresUser": "your_user",
+        "postgresPass": "your_password",
+        "redisHost": "your-redis-host",
+        "redisPort": 6379,
+        "redisPass": null
+    }
+    ```
+3.  **Launch**: Restart your server. Magnus will automatically verify the connection and create the necessary database schema.
 
-1.  **Download**: Get the latest `.jar` from releases.
-2.  **Install**: Drop the `.jar` into your server's `mods` folder.
-3.  **Run Once**: Start the server to generate configuration files.
-4.  **Configure**:
-    *   Start the server once. The mod will generate a configuration file at `config/magnus.json`.
-    *   Stop the server and edit `config/magnus.json`:
-        ```json
-        {
-            "postgresUrl": "jdbc:postgresql://localhost:5432/magnus",
-            "postgresUser": "postgres",
-            "postgresPass": "password",
-            "redisHost": "localhost",
-            "redisPort": 6379,
-            "redisPass": null
-        }
-        ```
-    *   Set your actual PostgreSQL and Redis credentials.
-5.  **Restart**: Restart the server.
+## Architecture
 
-### Database Setup
-The mod automatically creates the necessary tables (`player_data`) on the first run. No manual SQL scripts required.
-
-## Documentation
-
-For detailed architecture logic and failure recovery behavior, see [docs/BEHAVIOR.md](docs/BEHAVIOR.md).
+For detailed architecture logic and failure recovery behavior, see [docs/BEHAVIOR.md](https://github.com/KroderDev/magnus/blob/master/docs/BEHAVIOR.md).
