@@ -32,6 +32,12 @@
 				"value": "dev.kroder.magnus.MagnusDataGenerator",
 				"adapter": "kotlin"
 			}
+		],
+		"fabric-gametest": [
+			{
+				"value": "dev.kroder.magnus.gametest.MagnusGameTests",
+				"adapter": "kotlin"
+			}
 		]
 	},
 	"mixins": [

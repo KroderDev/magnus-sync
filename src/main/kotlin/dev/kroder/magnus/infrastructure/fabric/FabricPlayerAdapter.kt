@@ -21,9 +21,10 @@ object FabricPlayerAdapter {
      * Creates a [PlayerData] snapshot from a live Minecraft player.
      */
     fun toDomain(player: ServerPlayerEntity): PlayerData {
-        // PlayerInventory has writeNbt
+        // PlayerInventory.writeNbt() takes an NbtList and returns it filled
         val invCompound = NbtCompound()
-        player.inventory.writeNbt(invCompound.getList("Inventory", 10))
+        val invList = player.inventory.writeNbt(net.minecraft.nbt.NbtList())
+        invCompound.put("Inventory", invList)
 
         // EnderChestInventory does NOT have writeNbt, need to use toNbtList
         val enderCompound = NbtCompound()
