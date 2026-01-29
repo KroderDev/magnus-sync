@@ -25,10 +25,15 @@ class PostgresPlayerRepository(private val database: Database) : PlayerRepositor
                 it[health] = data.health
                 it[foodLevel] = data.foodLevel
                 it[saturation] = data.saturation
+                it[exhaustion] = data.exhaustion
+                it[air] = data.air
+                it[score] = data.score
+                it[selectedSlot] = data.selectedSlot
                 it[experienceLevel] = data.experienceLevel
                 it[experienceProgress] = data.experienceProgress
                 it[inventoryNbt] = data.inventoryNbt
                 it[enderChestNbt] = data.enderChestNbt
+                it[activeEffectsNbt] = data.activeEffectsNbt
                 it[lastUpdated] = data.lastUpdated
             }
         }
@@ -44,10 +49,15 @@ class PostgresPlayerRepository(private val database: Database) : PlayerRepositor
                         health = it[PlayerDataTable.health],
                         foodLevel = it[PlayerDataTable.foodLevel],
                         saturation = it[PlayerDataTable.saturation],
+                        exhaustion = it[PlayerDataTable.exhaustion],
+                        air = it[PlayerDataTable.air],
+                        score = it[PlayerDataTable.score],
+                        selectedSlot = it[PlayerDataTable.selectedSlot],
                         experienceLevel = it[PlayerDataTable.experienceLevel],
                         experienceProgress = it[PlayerDataTable.experienceProgress],
                         inventoryNbt = it[PlayerDataTable.inventoryNbt],
                         enderChestNbt = it[PlayerDataTable.enderChestNbt],
+                        activeEffectsNbt = it[PlayerDataTable.activeEffectsNbt],
                         lastUpdated = it[PlayerDataTable.lastUpdated]
                     )
                 }

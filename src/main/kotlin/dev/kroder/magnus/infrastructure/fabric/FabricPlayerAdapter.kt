@@ -30,16 +30,30 @@ object FabricPlayerAdapter {
         val enderList = player.enderChestInventory.toNbtList(player.registryManager)
         enderCompound.put("EnderItems", enderList)
 
+        // Potion Effects
+        val effectsCompound = NbtCompound()
+        val effectsList = net.minecraft.nbt.NbtList()
+        player.statusEffects.forEach { effect ->
+            val effectTag = effect.writeNbt()
+            effectsList.add(effectTag)
+        }
+        effectsCompound.put("Effects", effectsList)
+
         return PlayerData(
             uuid = player.uuid,
             username = player.gameProfile.name,
             health = player.health,
             foodLevel = player.hungerManager.foodLevel,
             saturation = player.hungerManager.saturationLevel,
+            exhaustion = player.hungerManager.exhaustion, // Added
+            air = player.air, // Added
+            score = player.score, // Added
+            selectedSlot = player.inventory.selectedSlot, // Added
             experienceLevel = player.experienceLevel,
             experienceProgress = player.experienceProgress,
             inventoryNbt = serializeNbt(invCompound),
-            enderChestNbt = serializeNbt(enderCompound)
+            enderChestNbt = serializeNbt(enderCompound),
+            activeEffectsNbt = serializeNbt(effectsCompound) // Added
         )
     }
 
@@ -50,6 +64,10 @@ object FabricPlayerAdapter {
         player.health = data.health
         player.hungerManager.foodLevel = data.foodLevel
         player.hungerManager.saturationLevel = data.saturation
+        player.hungerManager.exhaustion = data.exhaustion // Added
+        player.air = data.air // Added
+        player.score = data.score // Added
+        player.inventory.selectedSlot = data.selectedSlot // Added
         player.setExperienceLevel(data.experienceLevel)
         player.experienceProgress = data.experienceProgress
 
@@ -60,6 +78,18 @@ object FabricPlayerAdapter {
         // EnderChestInventory does NOT have readNbt, need to use readNbtList
         player.enderChestInventory.readNbtList(enderCompound.getList("EnderItems", 10), player.registryManager)
         
+        // Restore Potion Effects
+        player.clearStatusEffects() // Clear existing first to avoid duplication/conflicts
+        val effectsCompound = deserializeNbt(data.activeEffectsNbt)
+        val effectsList = effectsCompound.getList("Effects", 10)
+        for (i in 0 until effectsList.size) {
+            val effectTag = effectsList.getCompound(i)
+            val effect = net.minecraft.entity.effect.StatusEffectInstance.fromNbt(effectTag)
+            if (effect != null) {
+                player.addStatusEffect(effect)
+            }
+        }
+
         // Mark as dirty to ensure sync with client
         player.inventory.markDirty()
         player.enderChestInventory.markDirty()

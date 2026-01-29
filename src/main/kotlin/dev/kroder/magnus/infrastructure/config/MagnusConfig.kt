@@ -8,6 +8,9 @@ package dev.kroder.magnus.infrastructure.config
  * - This is a simple data holding class.
  * - Connection pooling settings are fixed for now.
  */
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class MagnusConfig(
     val postgresUrl: String = "jdbc:postgresql://localhost:5432/magnus",
     val postgresUser: String = "postgres",

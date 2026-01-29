@@ -24,10 +24,15 @@ data class PlayerData(
     val health: Float,
     val foodLevel: Int,
     val saturation: Float,
+    val exhaustion: Float, // Added
+    val air: Int, // Added
+    val score: Int, // Added
+    val selectedSlot: Int, // Added
     val experienceLevel: Int,
     val experienceProgress: Float,
-    val inventoryNbt: String, // Base64 encoded NBT or JSON representation
+    val inventoryNbt: String,
     val enderChestNbt: String,
+    val activeEffectsNbt: String, // Added
     val lastUpdated: Long = System.currentTimeMillis()
 )
 

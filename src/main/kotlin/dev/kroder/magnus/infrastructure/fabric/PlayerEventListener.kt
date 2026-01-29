@@ -7,7 +7,6 @@ import net.minecraft.server.network.ServerPlayNetworkHandler
 
 /**
  * Fabric event listeners that drive the synchronization process.
- * These listeners act as the "driving adapters" in the hexagonal architecture.
  * 
  * Functional Limits:
  * - Join: Data is loaded from storage and applied to the player.

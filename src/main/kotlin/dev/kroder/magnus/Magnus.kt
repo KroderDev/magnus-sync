@@ -25,12 +25,13 @@ import redis.clients.jedis.JedisPoolConfig
  */
 object Magnus : ModInitializer {
     private val logger = LoggerFactory.getLogger("magnus-sync")
-    private val config = MagnusConfig() // In production, load this from a file
+    private val config = dev.kroder.magnus.infrastructure.config.ConfigLoader.load()
 
     override fun onInitialize() {
-        logger.info("Initializing Magnus Sync - Hexagonal Architecture")
+        logger.info("Initializing Magnus Sync")
 
         // 1. Initialize Postgres (Infrastructure)
+        logger.info("Persistence: Connecting to PostgreSQL...")
         val database = Database.connect(
             url = config.postgresUrl,
             driver = "org.postgresql.Driver",
@@ -40,14 +41,36 @@ object Magnus : ModInitializer {
 
         try {
             transaction(database) {
-                SchemaUtils.create(PlayerDataTable)
+                // Creates table if missing, or adds missing columns if table exists.
+                @Suppress("DEPRECATION")
+                SchemaUtils.createMissingTablesAndColumns(PlayerDataTable)
             }
+            logger.info("Persistence: PostgreSQL connected and schema verified. [OK]")
         } catch (e: Exception) {
-            logger.error("Failed to connect to PostgreSQL on boot. Server will start in RESILIENCE MODE (Offline).", e)
+            logger.warn("Persistence: PostgreSQL connection FAILED. Server starting in RESILIENCE MODE (Offline). Reason: ${e.message}")
         }
 
         // 2. Initialize Redis (Infrastructure)
-        val jedisPool = JedisPool(JedisPoolConfig(), config.redisHost, config.redisPort)
+        logger.info("Cache: Initializing Redis...")
+        
+        val jedisPool = if (config.redisPass != null && config.redisPass.isNotEmpty()) {
+            JedisPool(JedisPoolConfig(), config.redisHost, config.redisPort, 2000, config.redisPass)
+        } else {
+            JedisPool(JedisPoolConfig(), config.redisHost, config.redisPort)
+        }
+
+        try {
+            jedisPool.resource.use { jedis ->
+                val ping = jedis.ping()
+                if (ping == "PONG") {
+                    logger.info("Cache: Redis connected successfully. [OK]")
+                } else {
+                     logger.warn("Cache: Redis connection unstable? Ping response: $ping")
+                }
+            }
+        } catch (e: Exception) {
+            logger.warn("Cache: Redis connection FAILED. Performance will be degraded. Reason: ${e.message}")
+        }
 
         // 3. Create Repositories (Infrastructure)
         val postgresRepo = PostgresPlayerRepository(database)
@@ -69,6 +92,18 @@ object Magnus : ModInitializer {
         val listener = PlayerEventListener(syncService)
         listener.register()
 
-        logger.info("Magnus Sync initialized successfully!")
+        // 6. Graceful Shutdown Hook
+        net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STOPPING.register {
+            logger.info("Magnus Sync: Shutting down services...")
+            try {
+                recoveryService.shutdown()
+                jedisPool.close()
+                logger.info("Magnus Sync: Services stopped cleanly.")
+            } catch (e: Exception) {
+                logger.error("Magnus Sync: Error during shutdown!", e)
+            }
+        }
+
+        logger.info("Magnus Sync initialized successfully! [Ready]")
     }
 }

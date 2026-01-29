@@ -3,13 +3,13 @@
 	"id": "magnus",
 	"version": "${version}",
 	"name": "magnus",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "High-performance, fault-tolerant inventory synchronization mod for Minecraft Fabric.",
 	"authors": [
-		"Me!"
+		"kroder"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://github.com/kroderdev/magnus-sync",
+		"sources": "https://github.com/kroderdev/magnus-sync"
 	},
 	"license": "CC0-1.0",
 	"icon": "assets/magnus/icon.png",
