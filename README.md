@@ -4,7 +4,7 @@
 ![Minecraft Version](https://img.shields.io/badge/Minecraft-1.21.1-brown?style=flat-square&logo=minecraft)
 ![Fabric](https://img.shields.io/badge/Loader-Fabric-blue?style=flat-square&logo=fabric)
 ![Kotlin](https://img.shields.io/badge/Language-Kotlin-purple?style=flat-square&logo=kotlin)
-![License](https://img.shields.io/github/license/KroderDev/magnus?style=flat-square&color=blue)
+![License](https://img.shields.io/badge/License-LGPL_v3-blue?style=flat-square)
 ![GitHub Tag](https://img.shields.io/github/v/tag/KroderDev/magnus?style=flat-square&label=GitHub&color=green)
 ![Modrinth Version](https://img.shields.io/modrinth/v/magnus?style=flat-square&logo=modrinth&color=00AF5C&label=Modrinth)
 ![CurseForge Version](https://img.shields.io/curseforge/v/1448049?style=flat-square&logo=curseforge&color=F16436&label=CurseForge)
