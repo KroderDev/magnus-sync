@@ -14,6 +14,8 @@ import java.util.concurrent.atomic.AtomicInteger
 @Mixin(ServerLoginNetworkHandler::class)
 abstract class MixinServerLoginNetworkHandler {
 
+    @Shadow abstract fun disconnect(reason: Text)
+    @Shadow private lateinit var profile: GameProfile
     @Shadow private lateinit var state: Enum<*> // Use Enum<*> to bypass visibility issues with private inner Enum class
 
     // Atomic counter for the delay/timeout logic
