@@ -4,7 +4,7 @@
 	"compatibilityLevel": "JAVA_21",
 	"refmap": "magnus-refmap.json",
 	"mixins": [
-		"MixinServerLoginNetworkHandler"
+		"ServerLoginNetworkHandlerAccessor"
 	],
 	"injectors": {
 		"defaultRequire": 1

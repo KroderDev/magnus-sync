@@ -14,6 +14,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 import redis.clients.jedis.JedisPool
 import redis.clients.jedis.JedisPoolConfig
+import dev.kroder.magnus.login.LoginQueueHandler
 
 /**
  * Main entry point for the Magnus Sync mod.
@@ -24,7 +25,7 @@ import redis.clients.jedis.JedisPoolConfig
  * - This class should stay lean, only handling dependency injection and lifecycle.
  */
 object Magnus : ModInitializer {
-    private val logger = LoggerFactory.getLogger("magnus")
+    internal val logger = LoggerFactory.getLogger("magnus")
     private val config = dev.kroder.magnus.infrastructure.config.ConfigLoader.load()
     
     // Exposed services for Mixins
@@ -111,7 +112,12 @@ object Magnus : ModInitializer {
         val listener = PlayerEventListener(syncService)
         listener.register()
 
-        // 7. Graceful Shutdown Hook
+        // 7. Initialize Login Queue Handler (uses Fabric API instead of Mixin)
+        if (config.enableSessionLock) {
+            LoginQueueHandler.register()
+        }
+
+        // 8. Graceful Shutdown Hook
         net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STOPPING.register {
             logger.info("Magnus: Shutting down services...")
             try {
