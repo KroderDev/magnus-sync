@@ -1,0 +1,4 @@
+accessWidener v1 named
+accessible class net/minecraft/server/network/ServerLoginNetworkHandler$State
+accessible field net/minecraft/server/network/ServerLoginNetworkHandler state Lnet/minecraft/server/network/ServerLoginNetworkHandler$State;
+accessible field net/minecraft/server/network/ServerLoginNetworkHandler$State READY_TO_ACCEPT Lnet/minecraft/server/network/ServerLoginNetworkHandler$State;

@@ -26,6 +26,10 @@ import redis.clients.jedis.JedisPoolConfig
 object Magnus : ModInitializer {
     private val logger = LoggerFactory.getLogger("magnus")
     private val config = dev.kroder.magnus.infrastructure.config.ConfigLoader.load()
+    
+    // Exposed services for Mixins
+    lateinit var syncService: SyncService
+        private set
 
     override fun onInitialize() {
         logger.info("Initializing Magnus")
@@ -83,7 +87,13 @@ object Magnus : ModInitializer {
         val resilientRepo = dev.kroder.magnus.infrastructure.persistence.ResilientPlayerRepository(compositeRepo, localBackupRepo)
 
         // 4. Create Application Services
-        val syncService = SyncService(resilientRepo) // Use the resilient one!
+        val lockManager = if (config.enableSessionLock) {
+            dev.kroder.magnus.domain.processing.LockManager(jedisPool)
+        } else {
+            null
+        }
+
+        syncService = SyncService(resilientRepo, lockManager)
         
         val recoveryService = dev.kroder.magnus.application.BackupRecoveryService(localBackupRepo, compositeRepo)
         recoveryService.start()

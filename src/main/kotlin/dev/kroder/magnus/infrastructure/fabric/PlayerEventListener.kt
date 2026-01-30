@@ -4,6 +4,7 @@ import dev.kroder.magnus.application.SyncService
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayNetworkHandler
+import net.minecraft.text.Text
 
 /**
  * Fabric event listeners that drive the synchronization process.
@@ -38,6 +39,9 @@ class PlayerEventListener(
                 // Apply the loaded data to the live player instance
                 FabricPlayerAdapter.applyToPlayer(player, data)
             }
+        } catch (e: dev.kroder.magnus.domain.exception.SessionLockedException) {
+            // The Mixin should prevent this from happening, but as a safety net:
+            handler.disconnect(net.minecraft.text.Text.literal("§cSession Locked: Please try again in a few seconds."))
         } catch (e: dev.kroder.magnus.domain.exception.DataUnavailableException) {
             // CRITICAL: DB is down and no backup. Kick to prevent data loss.
             handler.disconnect(net.minecraft.text.Text.literal("§cSync Error: Database Unavailable.\n§7Please try again later. Your data is safe."))
@@ -60,3 +64,4 @@ class PlayerEventListener(
         syncService.releaseCache(player.uuid)
     }
 }
+

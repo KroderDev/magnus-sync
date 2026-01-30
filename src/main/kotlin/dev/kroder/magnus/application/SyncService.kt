@@ -12,8 +12,12 @@ import java.util.UUID
  * - This service does not know anything about NBT, JDBC, or Redis.
  * - It relies purely on the [PlayerData] model and [PlayerRepository] interface.
  */
+import dev.kroder.magnus.domain.processing.LockManager
+import dev.kroder.magnus.domain.exception.SessionLockedException
+
 class SyncService(
-    private val repository: PlayerRepository
+    private val repository: PlayerRepository,
+    private val lockManager: LockManager? = null
 ) {
 
     /**
@@ -23,6 +27,10 @@ class SyncService(
      * @return The data loaded from storage, or null if no data is found (new player).
      */
     fun loadPlayerData(playerUuid: UUID): PlayerData? {
+        if (lockManager != null && lockManager.isLocked(playerUuid)) {
+            throw SessionLockedException("Session is locked for player $playerUuid. Please try again later.")
+        }
+
         // Here we could add logic like: check cache, if not found check DB, etc.
         // But the repository implementation (Adapters) will handle the Redis/Postgres layering.
         return repository.findByUuid(playerUuid)
@@ -34,7 +42,17 @@ class SyncService(
      * @param data The player data snapshot captured from the game.
      */
     fun savePlayerData(data: PlayerData) {
-        repository.save(data)
+        if (lockManager != null) {
+            lockManager.lock(data.uuid)
+        }
+        
+        try {
+            repository.save(data)
+        } finally {
+            if (lockManager != null) {
+                lockManager.unlock(data.uuid)
+            }
+        }
     }
 
     /**
@@ -44,5 +62,12 @@ class SyncService(
      */
     fun releaseCache(playerUuid: UUID) {
         repository.deleteCache(playerUuid)
+    }
+
+    /**
+     * Checks if a player's session is currently locked.
+     */
+    fun isSessionLocked(playerUuid: UUID): Boolean {
+        return lockManager?.isLocked(playerUuid) == true
     }
 }

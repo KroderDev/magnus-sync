@@ -13,6 +13,7 @@
 	},
 	"license": "LGPL-3.0-only",
 	"icon": "assets/magnus/icon.png",
+	"accessWidener": "magnus.accesswidener",
 	"environment": "*",
 	"entrypoints": {
 		"main": [

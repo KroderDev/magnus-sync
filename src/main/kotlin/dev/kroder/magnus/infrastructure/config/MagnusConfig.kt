@@ -20,5 +20,6 @@ data class MagnusConfig(
     val redisPass: String? = null,
     
     // Module Feature Flags
-    val enableGlobalPlayerList: Boolean = false
+    val enableGlobalPlayerList: Boolean = false,
+    val enableSessionLock: Boolean = false
 )
