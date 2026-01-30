@@ -14,10 +14,9 @@ import java.util.concurrent.atomic.AtomicInteger
 @Mixin(ServerLoginNetworkHandler::class)
 abstract class MixinServerLoginNetworkHandler {
 
-    @Shadow abstract fun acceptPlayer()
     @Shadow abstract fun disconnect(reason: Text)
     @Shadow private lateinit var profile: GameProfile
-    @Shadow private lateinit var state: Any // Shadow as Any to avoid visibility issues with private Enum
+    @Shadow private lateinit var state: ServerLoginNetworkHandler.State
 
     // Atomic counter for the delay/timeout logic
     private val magnus_waitTicks = AtomicInteger(0)
@@ -26,8 +25,7 @@ abstract class MixinServerLoginNetworkHandler {
     @Inject(method = ["tick"], at = [At("HEAD")], cancellable = true)
     private fun magnus_onTick(ci: CallbackInfo) {
         // We only intervene if the state is "READY_TO_ACCEPT"
-        // Use toString() to check enum name without accessing private class
-        if (this.state.toString() == "READY_TO_ACCEPT") {
+        if (this.state == ServerLoginNetworkHandler.State.READY_TO_ACCEPT) {
             
             // Access properties safely
             val p = this.profile
