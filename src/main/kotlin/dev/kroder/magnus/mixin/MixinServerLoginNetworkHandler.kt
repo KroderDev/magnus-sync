@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger
 abstract class MixinServerLoginNetworkHandler {
 
     @Shadow abstract fun acceptPlayer()
+    @Shadow abstract fun disconnect(reason: Text)
     @Shadow private lateinit var profile: GameProfile
     @Shadow private lateinit var state: Any // Shadow as Any to avoid visibility issues with private Enum
 
@@ -47,8 +48,7 @@ abstract class MixinServerLoginNetworkHandler {
 
                         if (ticks > MAGNUS_MAX_WAIT_TICKS) {
                             // Timeout: Disconnect
-                            // Use cast to access disconnect if needed, or calling expected method
-                            (this as ServerLoginNetworkHandler).disconnect(Text.literal("§cSession Sync Timeout: Could not acquire lock after 20s."))
+                            this.disconnect(Text.literal("§cSession Sync Timeout: Could not acquire lock after 20s."))
                             return
                         }
   
