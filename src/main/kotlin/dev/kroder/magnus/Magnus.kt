@@ -95,8 +95,6 @@ object Magnus : ModInitializer {
         // Example: if (config.enableGlobalChat) moduleManager.registerModule(GlobalChatModule(...))
 
         // Enable modules based on configuration
-        if (config.enableGlobalChat) moduleManager.enableModule("global-chat")
-        if (config.enableRemoteCommands) moduleManager.enableModule("remote-commands")
         if (config.enableGlobalPlayerList) moduleManager.enableModule("global-player-list")
 
         // 6. Initialize Listeners (Infrastructure / Driving Adapter)
