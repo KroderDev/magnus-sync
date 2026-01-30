@@ -2,6 +2,7 @@
 	"required": true,
 	"package": "dev.kroder.magnus.mixin",
 	"compatibilityLevel": "JAVA_21",
+	"refmap": "magnus-refmap.json",
 	"mixins": [
 		"MixinServerLoginNetworkHandler"
 	],
