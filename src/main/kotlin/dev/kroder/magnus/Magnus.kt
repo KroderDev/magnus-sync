@@ -1,7 +1,6 @@
 package dev.kroder.magnus
 
 import dev.kroder.magnus.application.SyncService
-import dev.kroder.magnus.infrastructure.config.MagnusConfig
 import dev.kroder.magnus.infrastructure.persistence.CachedPlayerRepository
 import dev.kroder.magnus.infrastructure.persistence.postgres.PlayerDataTable
 import dev.kroder.magnus.infrastructure.persistence.postgres.PostgresPlayerRepository
@@ -11,8 +10,6 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
-import redis.clients.jedis.JedisPool
-import redis.clients.jedis.JedisPoolConfig
 import dev.kroder.magnus.login.LoginQueueHandler
 
 /**
@@ -57,17 +54,21 @@ object Magnus : ModInitializer {
         // 2. Initialize Redis (Infrastructure)
         logger.info("Cache: Initializing Redis...")
         
-        val jedisPool = if (config.redisPass != null && config.redisPass.isNotEmpty()) {
-            JedisPool(JedisPoolConfig(), config.redisHost, config.redisPort, 2000, config.redisPass)
-        } else {
-            JedisPool(JedisPoolConfig(), config.redisHost, config.redisPort)
-        }
+        val jedisPool = dev.kroder.magnus.infrastructure.messaging.JedisPoolFactory.create(
+            host = config.redisHost,
+            port = config.redisPort,
+            password = config.redisPass,
+            useSsl = config.redisSsl
+        )
 
         try {
             jedisPool.resource.use { jedis ->
                 val ping = jedis.ping()
                 if (ping == "PONG") {
                     logger.info("Cache: Redis connected successfully. [OK]")
+                    if (config.redisSsl) {
+                        logger.info("Cache: SSL/TLS encryption is ENABLED")
+                    }
                 } else {
                      logger.warn("Cache: Redis connection unstable? Ping response: $ping")
                 }
@@ -98,9 +99,27 @@ object Magnus : ModInitializer {
         val recoveryService = dev.kroder.magnus.application.BackupRecoveryService(localBackupRepo, compositeRepo)
         recoveryService.start()
 
-        // 5. Initialize Modular System
+        // 5. Initialize Modular System with Secure MessageBus
         val moduleManager = dev.kroder.magnus.infrastructure.module.ModuleManager()
-        val messageBus = dev.kroder.magnus.infrastructure.messaging.RedisMessageBus(jedisPool)
+        
+        // Create message signer if signing is enabled
+        val messageSigner = if (config.enableMessageSigning && !config.messageSigningSecret.isNullOrEmpty()) {
+            logger.info("MessageBus: Message signing is ENABLED")
+            dev.kroder.magnus.infrastructure.security.MessageSigner(config.messageSigningSecret)
+        } else {
+            if (config.enableMessageSigning) {
+                logger.warn("MessageBus: enableMessageSigning is true but no messageSigningSecret provided! Signing disabled.")
+            }
+            null
+        }
+        
+        val messageBus = dev.kroder.magnus.infrastructure.messaging.SecureRedisMessageBus(
+            jedisPool = jedisPool,
+            signer = messageSigner,
+            maxPayloadSize = config.maxMessageSizeBytes,
+            retryDelayMs = config.subscriptionRetryDelayMs,
+            maxRetries = config.maxSubscriptionRetries
+        )
         
         // Register modules
         // Register Inventory Sync module (enabled by default)

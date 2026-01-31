@@ -26,5 +26,15 @@ data class MagnusConfig(
     val enableInventorySync: Boolean = true,
     val enableGlobalChat: Boolean = false,
     val enableGlobalPlayerList: Boolean = false,
-    val enableSessionLock: Boolean = false
+    val enableSessionLock: Boolean = false,
+    
+    // Redis Security Settings
+    val redisSsl: Boolean = false,
+    val enableMessageSigning: Boolean = true,  // Secure by default
+    val messageSigningSecret: String? = null,
+    val maxMessageSizeBytes: Int = 65536,  // 64KB limit
+    
+    // Redis Resilience Settings
+    val subscriptionRetryDelayMs: Long = 5000,
+    val maxSubscriptionRetries: Int = 10
 )

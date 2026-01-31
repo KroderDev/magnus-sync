@@ -32,6 +32,16 @@ A high-performance, fault-tolerant inventory synchronization mod for Minecraft F
 | **Global Player List** | Maintains a global player count with heartbeat. Provides `/glist` command. |
 | **Session Lock** | Prevents concurrent logins by locking player sessions during sync. Players are held in queue until their data is safely transferred. |
 
+### Security
+
+| Feature | Default | Description |
+|---------|---------|-------------|
+| **Message Signing** | ✅ Enabled | HMAC-SHA256 prevents message injection attacks |
+| **Auto-Generated Secret** | ✅ | 32-byte cryptographic secret generated on first run |
+| **Replay Prevention** | 30 sec | Messages older than 30 seconds are rejected |
+| **Payload Size Limits** | 64KB | Prevents DoS via oversized messages |
+| **SSL/TLS Support** | Optional | Encrypt Redis connections |
+
 ## Configuration
 
 Magnus requires a **PostgreSQL** database and a **Redis** instance to function.
@@ -51,11 +61,17 @@ Magnus requires a **PostgreSQL** database and a **Redis** instance to function.
     "enableInventorySync": true,
     "enableGlobalChat": false,
     "enableGlobalPlayerList": false,
-    "enableSessionLock": false
+    "enableSessionLock": false,
+    "enableMessageSigning": true,
+    "messageSigningSecret": "auto-generated-on-first-run",
+    "redisSsl": false
 }
 ```
 
 3.  **Launch**: Restart your server. Magnus will automatically verify the connection and create the necessary database schema.
+
+> [!IMPORTANT]
+> **Multi-Server Setup**: Copy the `messageSigningSecret` from the first server to all other servers. All servers must use the same secret.
 
 ### Configuration Options
 
@@ -66,6 +82,8 @@ Magnus requires a **PostgreSQL** database and a **Redis** instance to function.
 | `enableGlobalChat` | `false` | Enable cross-server chat synchronization |
 | `enableGlobalPlayerList` | `false` | Enable global player list and `/glist` command |
 | `enableSessionLock` | `false` | Enable session locking to prevent concurrent logins |
+| `enableMessageSigning` | `true` | Enable HMAC message signing (recommended) |
+| `redisSsl` | `false` | Enable SSL/TLS for Redis connections |
 
 ## Commands
 
@@ -80,3 +98,4 @@ For detailed flow diagrams and behavior documentation:
 - [Global Chat Flow](docs/global_chat_flow.md) - Cross-server chat messaging
 - [Global Player List Flow](docs/global_playerlist_flow.md) - Player list heartbeat and `/glist`
 - [Session Lock Flow](docs/session_lock_flow.md) - Login queue and session locking
+- [Message Security Flow](docs/message_security_flow.md) - HMAC signing and replay prevention
