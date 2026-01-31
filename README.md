@@ -72,9 +72,8 @@ Magnus requires a **PostgreSQL** database and a **Redis** instance to function.
 
 ## Architecture
 
-For detailed architecture logic and failure recovery behavior, see [docs/BEHAVIOR.md](https://github.com/KroderDev/magnus/blob/master/docs/BEHAVIOR.md).
-
-For module flow diagrams:
-- [Global Chat Flow](docs/global_chat_flow.md)
-- [Global Player List Flow](docs/global_playerlist_flow.md)
-- [Session Lock Flow](docs/session_lock_flow.md)
+For detailed flow diagrams and behavior documentation:
+- [Core Sync Flow](docs/core_sync_flow.md) - Data synchronization and fault tolerance
+- [Global Chat Flow](docs/global_chat_flow.md) - Cross-server chat messaging
+- [Global Player List Flow](docs/global_playerlist_flow.md) - Player list heartbeat and `/glist`
+- [Session Lock Flow](docs/session_lock_flow.md) - Login queue and session locking
