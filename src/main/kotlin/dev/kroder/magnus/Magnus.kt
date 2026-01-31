@@ -101,12 +101,26 @@ object Magnus : ModInitializer {
 
         // 5. Initialize Modular System
         val moduleManager = dev.kroder.magnus.infrastructure.module.ModuleManager()
+        val messageBus = dev.kroder.magnus.infrastructure.messaging.RedisMessageBus(jedisPool)
         
-        // TODO: Register modules when implemented
-        // Example: if (config.enableGlobalChat) moduleManager.registerModule(GlobalChatModule(...))
-
-        // Enable modules based on configuration
-        if (config.enableGlobalPlayerList) moduleManager.enableModule("global-player-list")
+        // Register modules
+        if (config.enableGlobalChat) {
+            val globalChatModule = dev.kroder.magnus.infrastructure.module.globalchat.GlobalChatModule(
+                messageBus = messageBus,
+                serverName = config.serverName
+            )
+            moduleManager.registerModule(globalChatModule)
+            moduleManager.enableModule("global-chat")
+        }
+        
+        if (config.enableGlobalPlayerList) {
+            val globalPlayerListModule = dev.kroder.magnus.infrastructure.module.globalplayerlist.GlobalPlayerListModule(
+                messageBus = messageBus,
+                serverName = config.serverName
+            )
+            moduleManager.registerModule(globalPlayerListModule)
+            moduleManager.enableModule("global-player-list")
+        }
 
         // 6. Initialize Listeners (Infrastructure / Driving Adapter)
         val listener = PlayerEventListener(syncService)
@@ -123,6 +137,7 @@ object Magnus : ModInitializer {
             try {
                 recoveryService.shutdown()
                 moduleManager.shutdown()
+                messageBus.close()
                 jedisPool.close()
                 logger.info("Magnus: Services stopped cleanly.")
             } catch (e: Exception) {

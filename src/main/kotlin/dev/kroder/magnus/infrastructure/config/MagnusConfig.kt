@@ -19,7 +19,11 @@ data class MagnusConfig(
     val redisPort: Int = 6379,
     val redisPass: String? = null,
     
+    // Server Identification
+    val serverName: String = "default",
+    
     // Module Feature Flags
+    val enableGlobalChat: Boolean = false,
     val enableGlobalPlayerList: Boolean = false,
     val enableSessionLock: Boolean = false
 )
