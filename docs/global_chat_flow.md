@@ -11,17 +11,19 @@ graph LR
     subgraph "Server A"
         PlayerA[Player A] -->|sends chat| FabricA[ChatEventListener]
         FabricA --> ServiceA[GlobalChatService]
-        ServiceA -->|publish| Redis[(Redis<br>magnus:chat)]
+        ServiceA -->|publish| BusA[SecureRedisMessageBus]
+        BusA -->|sign + send| Redis[(Redis<br>magnus:chat)]
     end
     
     subgraph "Server B"
-        Redis -->|subscribe| ServiceB[GlobalChatService]
+        Redis -->|receive| BusB[SecureRedisMessageBus]
+        BusB -->|verify + deliver| ServiceB[GlobalChatService]
         ServiceB -->|broadcast| PlayerB[All Players on B]
     end
     
-    subgraph "Server C"
-        Redis -->|subscribe| ServiceC[GlobalChatService]
-        ServiceC -->|broadcast| PlayerC[All Players on C]
+    subgraph "Attacker"
+        Hacker[Malicious Client] -->|fake message| Redis
+        Redis -->|rejected| BusB
     end
 ```
 
@@ -32,21 +34,31 @@ sequenceDiagram
     participant P as Player
     participant FEL as ChatEventListener
     participant GCS as GlobalChatService
+    participant Bus as SecureRedisMessageBus
     participant Redis as Redis
+    participant Bus2 as SecureRedisMessageBus<br>(Other Server)
     participant GCS2 as GlobalChatService<br>(Other Server)
     participant P2 as Remote Player
 
     P->>FEL: sends chat message
     FEL->>GCS: publishMessage(uuid, name, rawText)
     GCS->>GCS: serialize to ChatMessage JSON
-    GCS->>Redis: PUBLISH magnus:chat {json}
+    GCS->>Bus: publish(channel, json)
+    Bus->>Bus: sign(json) → hmac|timestamp|json
+    Bus->>Redis: PUBLISH magnus:chat {signed}
     
     Note over Redis: Redis broadcasts to all subscribers
     
-    Redis->>GCS2: onMessage callback
-    GCS2->>GCS2: deserialize ChatMessage
-    GCS2->>GCS2: check serverName != local
-    GCS2->>P2: sendMessage(formatted text)
+    Redis->>Bus2: onMessage callback
+    Bus2->>Bus2: verify signature
+    alt Valid Signature
+        Bus2->>GCS2: deliver payload
+        GCS2->>GCS2: deserialize ChatMessage
+        GCS2->>GCS2: check serverName != local
+        GCS2->>P2: sendMessage(formatted text)
+    else Invalid Signature
+        Bus2->>Bus2: drop message, log warning
+    end
 ```
 
 ## Data Flow
@@ -90,3 +102,15 @@ Enable in `config/magnus.json`:
 
 > [!IMPORTANT]
 > Each server must have a unique `serverName` to prevent echo loops.
+
+## Security
+
+All messages are automatically signed and verified by `SecureRedisMessageBus`:
+
+| Protection | Description |
+|------------|-------------|
+| **HMAC-SHA256** | Prevents message injection |
+| **Timestamp** | Rejects messages older than 30 seconds |
+| **Size Limit** | Drops payloads larger than 64KB |
+
+See [Message Security Flow](message_security_flow.md) for details.
