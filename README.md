@@ -6,8 +6,8 @@
 ![Kotlin](https://img.shields.io/badge/Language-Kotlin-purple?style=flat-square&logo=kotlin)
 ![License](https://img.shields.io/badge/License-LGPL_v3-blue?style=flat-square)
 ![GitHub Tag](https://img.shields.io/github/v/tag/KroderDev/magnus?style=flat-square&label=GitHub&color=green)
-![Modrinth Version](https://img.shields.io/modrinth/v/magnus?style=flat-square&logo=modrinth&color=00AF5C&label=Modrinth)
-![CurseForge Version](https://img.shields.io/curseforge/v/1448049?style=flat-square&logo=curseforge&color=F16436&label=CurseForge)
+[![Modrinth Version](https://img.shields.io/modrinth/v/magnus?style=flat-square&logo=modrinth&color=00AF5C&label=Modrinth)](https://modrinth.com/mod/magnus)
+[![CurseForge Version](https://img.shields.io/curseforge/v/1448049?style=flat-square&logo=curseforge&color=F16436&label=CurseForge)](https://www.curseforge.com/minecraft/mc-mods/magnus)
 
 
 A high-performance, fault-tolerant inventory synchronization mod for Minecraft Fabric servers.
