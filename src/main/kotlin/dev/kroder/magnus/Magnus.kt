@@ -2,7 +2,6 @@ package dev.kroder.magnus
 
 import dev.kroder.magnus.application.SyncService
 import dev.kroder.magnus.infrastructure.config.MagnusConfig
-import dev.kroder.magnus.infrastructure.fabric.PlayerEventListener
 import dev.kroder.magnus.infrastructure.persistence.CachedPlayerRepository
 import dev.kroder.magnus.infrastructure.persistence.postgres.PlayerDataTable
 import dev.kroder.magnus.infrastructure.persistence.postgres.PostgresPlayerRepository
@@ -104,6 +103,15 @@ object Magnus : ModInitializer {
         val messageBus = dev.kroder.magnus.infrastructure.messaging.RedisMessageBus(jedisPool)
         
         // Register modules
+        // Register Inventory Sync module (enabled by default)
+        if (config.enableInventorySync) {
+            val inventorySyncModule = dev.kroder.magnus.infrastructure.module.inventorysync.InventorySyncModule(
+                syncService = syncService
+            )
+            moduleManager.registerModule(inventorySyncModule)
+            moduleManager.enableModule("inventory-sync")
+        }
+        
         if (config.enableGlobalChat) {
             val globalChatModule = dev.kroder.magnus.infrastructure.module.globalchat.GlobalChatModule(
                 messageBus = messageBus,
@@ -121,10 +129,6 @@ object Magnus : ModInitializer {
             moduleManager.registerModule(globalPlayerListModule)
             moduleManager.enableModule("global-player-list")
         }
-
-        // 6. Initialize Listeners (Infrastructure / Driving Adapter)
-        val listener = PlayerEventListener(syncService)
-        listener.register()
 
         // 7. Initialize Login Queue Handler (uses Fabric API instead of Mixin)
         if (config.enableSessionLock) {

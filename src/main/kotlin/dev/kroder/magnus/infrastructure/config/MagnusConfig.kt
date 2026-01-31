@@ -23,6 +23,7 @@ data class MagnusConfig(
     val serverName: String = "default",
     
     // Module Feature Flags
+    val enableInventorySync: Boolean = true,
     val enableGlobalChat: Boolean = false,
     val enableGlobalPlayerList: Boolean = false,
     val enableSessionLock: Boolean = false

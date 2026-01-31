@@ -27,6 +27,7 @@ A high-performance, fault-tolerant inventory synchronization mod for Minecraft F
 
 | Module | Description |
 |--------|-------------|
+| **Inventory Sync** | Core synchronization of inventory, ender chest, health, hunger, XP, and potion effects. **Enabled by default.** |
 | **Global Chat** | Syncs chat messages across all servers via Redis pub/sub. Raw text format for compatibility with LuckPerms, Stylist, etc. |
 | **Global Player List** | Maintains a global player count with heartbeat. Provides `/glist` command. |
 | **Session Lock** | Prevents concurrent logins by locking player sessions during sync. Players are held in queue until their data is safely transferred. |
@@ -47,6 +48,7 @@ Magnus requires a **PostgreSQL** database and a **Redis** instance to function.
     "redisPort": 6379,
     "redisPass": null,
     "serverName": "survival",
+    "enableInventorySync": true,
     "enableGlobalChat": false,
     "enableGlobalPlayerList": false,
     "enableSessionLock": false
@@ -60,6 +62,7 @@ Magnus requires a **PostgreSQL** database and a **Redis** instance to function.
 | Option | Default | Description |
 |--------|---------|-------------|
 | `serverName` | `"default"` | Unique identifier for this server (e.g., `"survival"`, `"lobby"`) |
+| `enableInventorySync` | `true` | Enable inventory/player data synchronization. Disable for lobby servers. |
 | `enableGlobalChat` | `false` | Enable cross-server chat synchronization |
 | `enableGlobalPlayerList` | `false` | Enable global player list and `/glist` command |
 | `enableSessionLock` | `false` | Enable session locking to prevent concurrent logins |
