@@ -2,42 +2,63 @@ package dev.kroder.magnus.infrastructure.persistence
 
 import dev.kroder.magnus.domain.model.PlayerData
 import dev.kroder.magnus.domain.port.PlayerRepository
+import org.slf4j.LoggerFactory
 import java.util.UUID
 
 /**
  * A composite implementation of [PlayerRepository] that coordinates between a cache (Redis)
  * and a persistent store (Postgres).
  * 
- * Functional Limits:
- * - Read Strategy: Cache-Aside (Check Redis, then Postgres, then update Redis).
- * - Write Strategy: Write-Through (Update Redis and Postgres simultaneously).
+ * Resilience:
+ * - Cache operations are isolated. Failure in Redis will not block the Persistent Store.
  */
 class CachedPlayerRepository(
     private val cache: PlayerRepository,
     private val persistentStore: PlayerRepository
 ) : PlayerRepository {
 
+    private val logger = LoggerFactory.getLogger("magnus-cached-repo")
+
     override fun save(data: PlayerData) {
-        // Save to both for consistency
-        cache.save(data)
+        // 1. Try to save to cache (Redis)
+        try {
+            cache.save(data)
+        } catch (e: Exception) {
+            logger.warn("Cache save failed for ${data.uuid}: ${e.message}")
+        }
+
+        // 2. Always save to persistent store (Postgres)
         persistentStore.save(data)
     }
 
     override fun findByUuid(uuid: UUID): PlayerData? {
-        // Try the cache first
-        val cached = cache.findByUuid(uuid)
-        if (cached != null) return cached
+        // 1. Try the cache first (Isolated)
+        try {
+            val cached = cache.findByUuid(uuid)
+            if (cached != null) return cached
+        } catch (e: Exception) {
+            logger.warn("Cache load failed for $uuid: ${e.message}")
+        }
 
-        // If not in cache, load from persistent store
+        // 2. Load from persistent store
         val persistent = persistentStore.findByUuid(uuid) ?: return null
 
-        // Update cache for next time
-        cache.save(persistent)
+        // 3. Update cache for next time (Isolated)
+        try {
+            cache.save(persistent)
+        } catch (e: Exception) {
+            logger.debug("Failed to update cache after DB load for $uuid: ${e.message}")
+        }
         
         return persistent
     }
 
     override fun deleteCache(uuid: UUID) {
-        cache.deleteCache(uuid)
+        try {
+            cache.deleteCache(uuid)
+        } catch (e: Exception) {
+            logger.warn("Failed to delete cache for $uuid: ${e.message}")
+        }
     }
 }
+

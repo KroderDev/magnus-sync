@@ -79,8 +79,9 @@ object Magnus : ModInitializer {
 
         // 3. Create Repositories (Infrastructure)
         val postgresRepo = PostgresPlayerRepository(database)
-        val redisRepo = RedisPlayerRepository(jedisPool)
+        val redisRepo = RedisPlayerRepository(jedisPool, maxPayloadSize = config.maxMessageSizeBytes)
         val compositeRepo = CachedPlayerRepository(cache = redisRepo, persistentStore = postgresRepo)
+
         
         // Resilience Layer
         val backupsDir = net.fabricmc.loader.api.FabricLoader.getInstance().configDir.resolve("magnus/backups").toFile()
