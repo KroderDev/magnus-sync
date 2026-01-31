@@ -90,6 +90,10 @@ dependencies {
     testImplementation "org.testcontainers:testcontainers:1.19.7"
     testImplementation "org.testcontainers:junit-jupiter:1.19.7"
     testImplementation "org.testcontainers:postgresql:1.19.7"
+    testImplementation "com.redis:testcontainers-redis:2.2.2"
+    
+    // Coroutines test support
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3"
 }
 
 processResources {
