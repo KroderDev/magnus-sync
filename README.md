@@ -10,7 +10,7 @@
 [![CurseForge Version](https://img.shields.io/curseforge/v/1448049?style=flat-square&logo=curseforge&color=F16436&label=CurseForge)](https://www.curseforge.com/minecraft/mc-mods/magnus)
 
 
-A high-performance, fault-tolerant inventory synchronization mod for Minecraft Fabric servers.
+A modular, high-performance, and resilient synchronization suite for Minecraft Fabric servers. Features real-time inventory sync, cross-server chat, and global player management.
 
 ## Features
 

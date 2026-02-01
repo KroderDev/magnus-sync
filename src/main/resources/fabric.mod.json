@@ -3,7 +3,7 @@
 	"id": "magnus",
 	"version": "${version}",
 	"name": "magnus",
-	"description": "High-performance, fault-tolerant inventory synchronization mod for Minecraft Fabric.",
+	"description": "A modular, high-performance, and resilient synchronization suite for Minecraft Fabric servers. Features real-time inventory sync, cross-server chat, and global player management.",
 	"authors": [
 		"kroder"
 	],
