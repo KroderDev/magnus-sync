@@ -99,3 +99,4 @@ For detailed flow diagrams and behavior documentation:
 - [Global Player List Flow](docs/global_playerlist_flow.md) - Player list heartbeat and `/glist`
 - [Session Lock Flow](docs/session_lock_flow.md) - Login queue and session locking
 - [Message Security Flow](docs/message_security_flow.md) - HMAC signing and replay prevention
+- [Server Lifecycle Flow](docs/server_lifecycle_flow.md) - Startup and shutdown sequence

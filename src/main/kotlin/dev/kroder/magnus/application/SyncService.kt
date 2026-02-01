@@ -70,4 +70,22 @@ class SyncService(
     fun isSessionLocked(playerUuid: UUID): Boolean {
         return lockManager?.isLocked(playerUuid) == true
     }
+
+    /**
+     * Saves all online players' data in a fail-safe manner.
+     * This is typically used during server shutdown.
+     */
+    fun saveAllPlayerData(playerDataList: List<PlayerData>) {
+        playerDataList.forEach { data ->
+            try {
+                savePlayerData(data)
+            } catch (e: Exception) {
+                // Fail-safe: Log error and continue with the next player
+                // We don't have a logger here, but the repository or the caller should handle logging.
+                // For now, we ensure the loop doesn't break.
+                System.err.println("Failed to save player data for ${data.uuid}: ${e.message}")
+                e.printStackTrace()
+            }
+        }
+    }
 }

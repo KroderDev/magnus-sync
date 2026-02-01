@@ -80,4 +80,10 @@ class ModuleManager {
      * Returns true if a module is currently active.
      */
     fun isModuleActive(id: String): Boolean = activeModules.contains(id)
+
+    /**
+     * Retrieves a module by its ID and casts it to the desired type.
+     */
+    @Suppress("UNCHECKED_CAST")
+    fun <T : MagnusModule> getModule(id: String): T? = modules[id] as? T
 }

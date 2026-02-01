@@ -11,6 +11,7 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 import dev.kroder.magnus.login.LoginQueueHandler
+import dev.kroder.magnus.infrastructure.module.inventorysync.InventorySyncModule
 
 /**
  * Main entry point for the Magnus Sync mod.
@@ -156,7 +157,17 @@ object Magnus : ModInitializer {
         }
 
         // 8. Graceful Shutdown Hook
-        net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STOPPING.register {
+        net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STOPPING.register { server ->
+            logger.info("Magnus: Stopping server - ensuring all player data is saved...")
+            
+            try {
+                // Force save online players through the InventorySyncModule
+                val invSync = moduleManager.getModule<InventorySyncModule>("inventory-sync")
+                invSync?.forceSaveAllPlayers(server.playerManager.playerList)
+            } catch (e: Exception) {
+                logger.error("Magnus: Error during forced player data save!", e)
+            }
+
             logger.info("Magnus: Shutting down services...")
             try {
                 recoveryService.shutdown()
