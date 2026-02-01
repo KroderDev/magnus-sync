@@ -2,7 +2,9 @@ package dev.kroder.magnus.infrastructure.module.inventorysync
 
 import dev.kroder.magnus.application.SyncService
 import dev.kroder.magnus.domain.module.MagnusModule
+import dev.kroder.magnus.infrastructure.fabric.FabricPlayerAdapter
 import dev.kroder.magnus.infrastructure.fabric.PlayerEventListener
+import net.minecraft.server.network.ServerPlayerEntity
 import org.slf4j.LoggerFactory
 
 /**
@@ -36,5 +38,15 @@ class InventorySyncModule(
         // Note: Fabric API does not provide a native way to unregister event callbacks.
         // The listener will remain registered but the module is logically disabled.
         logger.info("Inventory Sync module disabled (event listeners cannot be unregistered in Fabric)")
+    }
+
+    /**
+     * Forcefully saves all online players. 
+     * Called during server shutdown to prevent race conditions.
+     */
+    fun forceSaveAllPlayers(players: List<ServerPlayerEntity>) {
+        logger.info("Forcing save for ${players.size} online players...")
+        val domainPlayers = players.map { FabricPlayerAdapter.toDomain(it) }
+        syncService.saveAllPlayerData(domainPlayers)
     }
 }
